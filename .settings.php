@@ -27,22 +27,22 @@ return [
     'services' => [
         'value' => [
             AccessTokenRepositoryInterface::class => [
-                'className' => Beeralex\Oauth2\Repositories\AccessTokenRepository::class,
+                'className' => Beeralex\Oauth2\Repository\AccessTokenRepository::class,
             ],
             AuthCodeRepositoryInterface::class => [
-                'className' => Beeralex\Oauth2\Repositories\AuthCodeRepository::class,
+                'className' => Beeralex\Oauth2\Repository\AuthCodeRepository::class,
             ],
             ClientRepositoryInterface::class => [
-                'className' => Beeralex\Oauth2\Repositories\ClientRepository::class,
+                'className' => Beeralex\Oauth2\Repository\ClientRepository::class,
             ],
             RefreshTokenRepositoryInterface::class => [
-                'className' => Beeralex\Oauth2\Repositories\RefreshTokenRepository::class,
+                'className' => Beeralex\Oauth2\Repository\RefreshTokenRepository::class,
             ],
             ScopeRepositoryInterface::class => [
-                'className' => Beeralex\Oauth2\Repositories\ScopeRepository::class,
+                'className' => Beeralex\Oauth2\Repository\ScopeRepository::class,
             ],
             UserRepositoryInterface::class => [
-                'className' => Beeralex\Oauth2\Repositories\UserRepository::class,
+                'className' => Beeralex\Oauth2\Repository\UserRepository::class,
             ],
             ClientCredentialsGrant::class => [
                 'className' => ClientCredentialsGrant::class,

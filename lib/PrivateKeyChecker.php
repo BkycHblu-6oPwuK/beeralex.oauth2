@@ -1,5 +1,4 @@
 <?php
-
 namespace Beeralex\Oauth2;
 
 use Bitrix\Main\Config\Configuration;

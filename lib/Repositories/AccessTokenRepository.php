@@ -1,47 +1,44 @@
 <?php
+namespace Beeralex\Oauth2\Repository;
 
-namespace Beeralex\Oauth2\Repositories;
-
+use Beeralex\Core\Repository\Repository;
+use Beeralex\Oauth2\Entity\AccessTokenEntity;
+use Beeralex\Oauth2\Tables\TokensTable;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
-use Beeralex\Oauth2\Entity\AccessTokenEntity;
-use Beeralex\Oauth2\Tables\TokensTable;
 
-class AccessTokenRepository implements AccessTokenRepositoryInterface
+class AccessTokenRepository extends Repository implements AccessTokenRepositoryInterface
 {
+    public function __construct()
+    {
+        parent::__construct(TokensTable::class);
+    }
+
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
-        TokensTable::add([
+        $this->add([
             'ID' => $accessTokenEntity->getIdentifier(),
             'IS_REVOKED' => false,
             'USER_ID' => (int)$accessTokenEntity->getUserIdentifier(),
             'CLIENT_ID' => $accessTokenEntity->getClient()->getIdentifier(),
-            'SCOPES' => array_map(function (ScopeEntityInterface $scopeEntity): string {
-                return $scopeEntity->getIdentifier();
-            }, $accessTokenEntity->getScopes()),
+            'SCOPES' => array_map(
+                static fn(ScopeEntityInterface $scopeEntity): string => $scopeEntity->getIdentifier(),
+                $accessTokenEntity->getScopes()
+            ),
         ]);
     }
 
     public function revokeAccessToken($tokenId): void
     {
-        TokensTable::update($tokenId, ['IS_REVOKED' => true]);
+        $this->update($tokenId, ['IS_REVOKED' => true]);
     }
 
     public function isAccessTokenRevoked($tokenId): bool
     {
-        $token = TokensTable::query()
-            ->addSelect('ID')
-            ->addSelect('IS_REVOKED')
-            ->where('ID', $tokenId)
-            ->fetchObject();
-
-        if ($token !== null) {
-            return $token->getIsRevoked();
-        }
-
-        return true;
+        $token = $this->one(['ID' => $tokenId], ['ID', 'IS_REVOKED']);
+        return $token ? (bool)$token['IS_REVOKED'] : true;
     }
 
     public function getNewToken(
@@ -51,11 +48,13 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     ): AccessTokenEntity {
         $accessToken = new AccessTokenEntity();
         $accessToken->setClient($clientEntity);
+
         foreach ($scopes as $scope) {
             $accessToken->addScope($scope);
         }
-        $accessToken->setUserIdentifier($userIdentifier ?? $clientEntity->getIdentifier());
 
+        $accessToken->setUserIdentifier($userIdentifier ?? $clientEntity->getIdentifier());
         return $accessToken;
     }
 }
+

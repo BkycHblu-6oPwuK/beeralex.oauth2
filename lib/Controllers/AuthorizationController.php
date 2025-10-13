@@ -1,5 +1,4 @@
 <?php
-
 namespace Beeralex\Oauth2\Controllers;
 
 use Bitrix\Main\Engine\ActionFilter;

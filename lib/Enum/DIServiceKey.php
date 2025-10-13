@@ -1,5 +1,4 @@
 <?php
-
 namespace Beeralex\Oauth2\Enum;
 
 enum DIServiceKey: string

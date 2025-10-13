@@ -1,19 +1,25 @@
 <?php
+namespace Beeralex\Oauth2\Repository;
 
-namespace Beeralex\Oauth2\Repositories;
-
-use Bitrix\Main\Security\Password;
-use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use Beeralex\Core\Repository\Repository;
 use Beeralex\Oauth2\Entity\ClientEntity;
 use Beeralex\Oauth2\Tables\ClientsTable;
+use Bitrix\Main\Security\Password;
+use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 
-class ClientRepository implements ClientRepositoryInterface
+class ClientRepository extends Repository implements ClientRepositoryInterface
 {
+    public function __construct()
+    {
+        parent::__construct(ClientsTable::class);
+    }
+
     public function getClientEntity($clientIdentifier): ?ClientEntity
     {
-        $client = ClientsTable::query()
-            ->addSelect('*')
-            ->where('ID', $clientIdentifier)
+        $client = $this->query()
+            ->setSelect(['*'])
+            ->setFilter(['ID' => $clientIdentifier])
+            ->exec()
             ->fetchObject();
 
         if ($client === null) {
@@ -21,10 +27,10 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         $clientEntity = new ClientEntity();
-
         $clientEntity->setIdentifier($client->getId());
         $clientEntity->setName($client->getName());
         $clientEntity->setRedirectUri($client->getRedirectUri());
+
         if ($client->getIsConfidential()) {
             $clientEntity->setConfidential();
         }
@@ -34,11 +40,11 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
-        $client = ClientsTable::query()
+        $client = $this->query()
             ->enablePrivateFields()
-            ->addSelect('*')
-            ->addSelect('SECRET')
-            ->where('ID', $clientIdentifier)
+            ->setSelect(['*', 'SECRET'])
+            ->setFilter(['ID' => $clientIdentifier])
+            ->exec()
             ->fetchObject();
 
         if ($client === null) {
@@ -49,6 +55,7 @@ class ClientRepository implements ClientRepositoryInterface
             if ($client->getSecret() === null) {
                 return false;
             }
+
             if (!Password::equals($client->getSecret(), $clientSecret)) {
                 return false;
             }
@@ -59,10 +66,6 @@ class ClientRepository implements ClientRepositoryInterface
             $allowedGrants = (array)$allowedGrants;
         }
 
-        if (!in_array($grantType, $allowedGrants, true)) {
-            return false;
-        }
-
-        return true;
+        return in_array($grantType, $allowedGrants, true);
     }
 }

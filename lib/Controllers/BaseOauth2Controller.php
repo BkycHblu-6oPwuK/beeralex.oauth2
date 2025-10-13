@@ -1,5 +1,4 @@
 <?php
-
 namespace Beeralex\Oauth2\Controllers;
 
 use Beeralex\Core\Http\HttpFactory;
@@ -29,8 +28,8 @@ abstract class BaseOauth2Controller extends Controller
     protected function processBeforeAction(Action $action): bool
     {
         $action->setArguments([
-            'request' => HttpFactory::fromBitrixRequest($action->getController()->getRequest()), // request psr
-            'response' =>  HttpFactory::fromBitrixResponse((new HttpResponse())->setStatus(200)), // response psr
+            'request' => HttpFactory::fromBitrixRequest($action->getController()->getRequest()),
+            'response' =>  HttpFactory::fromBitrixResponse((new HttpResponse())->setStatus(200)),
         ]);
         return true;
     }

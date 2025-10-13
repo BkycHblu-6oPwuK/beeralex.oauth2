@@ -1,5 +1,4 @@
 <?php
-
 namespace Beeralex\Oauth2\Controllers;
 
 use League\OAuth2\Server\Exception\OAuthServerException;

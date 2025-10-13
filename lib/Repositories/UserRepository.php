@@ -1,28 +1,35 @@
 <?php
+namespace Beeralex\Oauth2\Repository;
 
-namespace Beeralex\Oauth2\Repositories;
-
+use Beeralex\Core\Repository\Repository;
+use Beeralex\Oauth2\Entity\UserEntity;
 use Bitrix\Main\Security\Password;
 use Bitrix\Main\UserTable;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
-use Beeralex\Oauth2\Entity\UserEntity;
 
-class UserRepository implements UserRepositoryInterface
+class UserRepository extends Repository implements UserRepositoryInterface
 {
+    public function __construct()
+    {
+        parent::__construct(UserTable::class);
+    }
+
     public function getUserEntityByUserCredentials(
         $username,
         $password,
         $grantType,
         ClientEntityInterface $clientEntity
     ): ?UserEntity {
-        $user = UserTable::query()
+        $user = $this->query()
             ->enablePrivateFields()
-            ->addSelect('ID')
-            ->addSelect('PASSWORD')
-            ->where('ACTIVE', true)
-            ->where('BLOCKED', false)
-            ->where('LOGIN', $username)
+            ->setSelect(['ID', 'PASSWORD'])
+            ->setFilter([
+                'ACTIVE' => true,
+                'BLOCKED' => false,
+                'LOGIN' => $username,
+            ])
+            ->exec()
             ->fetchObject();
 
         if ($user === null) {

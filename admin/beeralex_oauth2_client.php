@@ -2,7 +2,7 @@
 require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
 
 use Beeralex\Core\Helpers\WebHelper;
-use Beeralex\Oauth2\Tables\ClientsTable;
+use Beeralex\Oauth2\Repository\ClientRepository;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Security\Random;
@@ -15,10 +15,11 @@ Loader::includeModule($MODULE_ID);
 
 $request = Application::getInstance()->getContext()->getRequest();
 $clientId = $request->getQuery("ID");
+$clientRepository = new ClientRepository();
 $client = null;
 
 if ($clientId) {
-    $client = ClientsTable::getById($clientId)->fetch();
+    $client = $clientRepository->getById($clientId);
     if (!$client) {
         ShowError("Клиент не найден");
         require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin.php");
@@ -42,9 +43,9 @@ if ($request->isPost() && check_bitrix_sessid()) {
             $newSecretPlain = Random::getString(48);
             $data['SECRET'] = \Bitrix\Main\Security\Password::hash($newSecretPlain);
         }
-        ClientsTable::add($data);
+        $clientRepository->add($data);
     } else {
-        ClientsTable::update($clientId, $data);
+        $clientRepository->update($clientId, $data);
     }
 
     if ($request->getPost("save")) {

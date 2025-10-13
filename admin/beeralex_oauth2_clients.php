@@ -1,7 +1,7 @@
 <?php
 require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
 
-use Beeralex\Oauth2\Tables\ClientsTable;
+use Beeralex\Oauth2\Repository\ClientRepository;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 
@@ -15,12 +15,13 @@ $request = Application::getInstance()->getContext()->getRequest();
 $sTableID = "tbl_oauth_clients";
 $oSort = new CAdminUiSorting($sTableID, "ID", "asc");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
+$clientRepository = new ClientRepository();
 
 if (($arID = $lAdmin->GroupAction()) && $POST_RIGHT == "W") {
     $type = $request->get("action_button_{$sTableID}");
     foreach ($arID as $id) {
         if ($type == "delete") {
-            ClientsTable::delete($id);
+            $clientRepository->delete($id);
         }
     }
 }
@@ -38,7 +39,7 @@ $filter = [];
 $lAdmin->AddFilter($displayFilter, $filter);
 
 $nav = $lAdmin->getPageNavigation($sTableID);
-$query = ClientsTable::getList([
+$query = $clientRepository->getList([
     'select' => ['ID', 'NAME', 'IS_CONFIDENTIAL', 'REDIRECT_URI'],
     'filter' => $filter,
     'order' => [$oSort->getField() => $oSort->getOrder()],

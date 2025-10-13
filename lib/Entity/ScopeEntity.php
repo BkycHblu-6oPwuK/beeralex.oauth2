@@ -1,5 +1,4 @@
 <?php
-
 namespace Beeralex\Oauth2\Entity;
 
 use League\OAuth2\Server\Entities\ScopeEntityInterface;

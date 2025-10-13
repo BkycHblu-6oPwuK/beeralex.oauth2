@@ -1,5 +1,4 @@
 <?php
-
 namespace Beeralex\Oauth2\Tables;
 
 use Beeralex\Core\Traits\TableManagerTrait;

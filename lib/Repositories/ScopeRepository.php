@@ -1,6 +1,5 @@
 <?php
-
-namespace Beeralex\Oauth2\Repositories;
+namespace Beeralex\Oauth2\Repository;
 
 use Bitrix\Main;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
