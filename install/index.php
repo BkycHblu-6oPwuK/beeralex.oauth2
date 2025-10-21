@@ -53,8 +53,8 @@ class beeralex_oauth2 extends CModule
     public function InstallFiles()
     {
         $moduleDir = __DIR__;
-        $sourceDir = $moduleDir . '/bitrix';
-        $targetDir = Application::getDocumentRoot() . '/bitrix';
+        $sourceDir = $moduleDir . '/files';
+        $targetDir = Application::getDocumentRoot();
 
         FilesHelper::copyRecursive($sourceDir, $targetDir);
     }
