@@ -54,10 +54,9 @@ return [
             PasswordGrant::class => [
                 'className' => PasswordGrant::class,
                 'constructorParams' => function (): array {
-                    $container = Bitrix\Main\DI\ServiceLocator::getInstance();
                     return [
-                        $container->get(UserRepositoryInterface::class),
-                        $container->get(RefreshTokenRepositoryInterface::class),
+                        service(UserRepositoryInterface::class),
+                        service(RefreshTokenRepositoryInterface::class),
                     ];
                 },
             ],
@@ -68,11 +67,10 @@ return [
             AuthCodeGrant::class => [
                 'className' => AuthCodeGrant::class,
                 'constructorParams' => function (): array {
-                    $container = ServiceLocator::getInstance();
                     return [
-                        $container->get(AuthCodeRepositoryInterface::class),
-                        $container->get(RefreshTokenRepositoryInterface::class),
-                        $container->get(DIServiceKey::GRANT_AUTH_CODE_TTL->value),
+                        service(AuthCodeRepositoryInterface::class),
+                        service(RefreshTokenRepositoryInterface::class),
+                        service(DIServiceKey::GRANT_AUTH_CODE_TTL->value),
                     ];
                 },
             ],
@@ -87,9 +85,8 @@ return [
             RefreshTokenGrant::class => [
                 'className' => RefreshTokenGrant::class,
                 'constructorParams' => function (): array {
-                    $container = ServiceLocator::getInstance();
                     return [
-                        $container->get(RefreshTokenRepositoryInterface::class),
+                        service(RefreshTokenRepositoryInterface::class),
                     ];
                 },
             ],
@@ -118,35 +115,34 @@ return [
             ],
             AuthorizationServer::class => [
                 'constructor' => function (): AuthorizationServer {
-                    $container = ServiceLocator::getInstance();
                     $configuration = Configuration::getValue('beeralex.oauth2');
 
                     $server = new AuthorizationServer(
-                        $container->get(ClientRepositoryInterface::class),
-                        $container->get(AccessTokenRepositoryInterface::class),
-                        $container->get(ScopeRepositoryInterface::class),
-                        $container->get(DIServiceKey::PRIVATE_KEY->value),
+                        service(ClientRepositoryInterface::class),
+                        service(AccessTokenRepositoryInterface::class),
+                        service(ScopeRepositoryInterface::class),
+                        service(DIServiceKey::PRIVATE_KEY->value),
                         $configuration['encryption_key']
                     );
 
                     $server->enableGrantType(
-                        $container->get(ClientCredentialsGrant::class),
-                        $container->get(DIServiceKey::CLIENT_CREDENTIALS_ACCESS_TOKEN_TTL->value)
+                        service(ClientCredentialsGrant::class),
+                        service(DIServiceKey::CLIENT_CREDENTIALS_ACCESS_TOKEN_TTL->value)
                     );
 
                     $server->enableGrantType(
-                        $container->get(PasswordGrant::class),
-                        $container->get(DIServiceKey::GRANT_PASSWORD_ACCESS_TOKEN_TTL->value)
+                        service(PasswordGrant::class),
+                        service(DIServiceKey::GRANT_PASSWORD_ACCESS_TOKEN_TTL->value)
                     );
 
                     $server->enableGrantType(
-                        $container->get(RefreshTokenGrant::class),
-                        $container->get(DIServiceKey::GRANT_REFRESH_ACCESS_TOKEN_TTL->value)
+                        service(RefreshTokenGrant::class),
+                        service(DIServiceKey::GRANT_REFRESH_ACCESS_TOKEN_TTL->value)
                     );
 
                     $server->enableGrantType(
-                        $container->get(AuthCodeGrant::class),
-                        $container->get(DIServiceKey::GRANT_AUTH_CODE_ACCESS_TOKEN_TTL->value)
+                        service(AuthCodeGrant::class),
+                        service(DIServiceKey::GRANT_AUTH_CODE_ACCESS_TOKEN_TTL->value)
                     );
 
                     return $server;

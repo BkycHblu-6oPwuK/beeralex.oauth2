@@ -15,14 +15,10 @@ abstract class BaseOauth2Controller extends Controller
     /** @var AuthorizationServer */
     protected $server;
 
-    /** @var ContainerInterface */
-    protected $container;
-
     public function __construct(?HttpRequest $request = null)
     {
         parent::__construct($request);
-        $this->container = \Bitrix\Main\DI\ServiceLocator::getInstance();
-        $this->server = $this->container->get(AuthorizationServer::class);
+        $this->server = service(AuthorizationServer::class);
     }
 
     protected function processBeforeAction(Action $action): bool

@@ -6,7 +6,6 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Context;
-use Bitrix\Main\DI\ServiceLocator;
 use League\OAuth2\Server\ResourceServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
@@ -19,16 +18,10 @@ class Oauth2Token extends Base
 
     public function onBeforeAction(Event $event)
     {
-        $container = ServiceLocator::getInstance();
         $request = Context::getCurrent()->getRequest();
         $psrRequest = HttpFactory::fromBitrixRequest($request);
-
-        /** @var AccessTokenRepositoryInterface $accessTokenRepository */
-        $accessTokenRepository = $container->get(AccessTokenRepositoryInterface::class);
-
-        /** @var \League\OAuth2\Server\CryptKey $publicKey */
-        $publicKey = $container->get(DIServiceKey::PUBLIC_KEY->value);
-
+        $accessTokenRepository = service(AccessTokenRepositoryInterface::class);
+        $publicKey = service(DIServiceKey::PUBLIC_KEY->value);
         $resourceServer = new ResourceServer($accessTokenRepository, $publicKey);
 
         try {
