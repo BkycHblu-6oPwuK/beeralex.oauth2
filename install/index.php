@@ -1,6 +1,7 @@
 <?php
 
 use Beeralex\Core\Helpers\FilesHelper;
+use Beeralex\Core\Service\FileService;
 use Beeralex\Oauth2\Tables\AuthCodesTable;
 use Beeralex\Oauth2\Tables\ClientsTable;
 use Beeralex\Oauth2\Tables\RefreshTokensTable;
@@ -41,7 +42,7 @@ class beeralex_oauth2 extends CModule
             $this->InstallFiles();
             $this->InstallTasks();
         } else {
-            $APPLICATION->ThrowException('Ошибка установки. Проверьте зависимости модуля');
+            $APPLICATION->ThrowException('Ошибка установки. Проверьте зависимости модуля: версия главного модуля ниже 23 или не установлен модуль beeralex.core');
         }
 
         $APPLICATION->IncludeAdminFile(
@@ -56,7 +57,7 @@ class beeralex_oauth2 extends CModule
         $sourceDir = $moduleDir . '/files';
         $targetDir = Application::getDocumentRoot();
 
-        FilesHelper::copyRecursive($sourceDir, $targetDir);
+        service(FileService::class)->copyRecursive($sourceDir, $targetDir);
     }
 
     public function DoUninstall(): void
@@ -103,7 +104,7 @@ class beeralex_oauth2 extends CModule
 
     public function checkRequirements(): bool
     {
-        return version_compare(ModuleManager::getVersion('main'), '23.00.00') >= 0;
+        return version_compare(ModuleManager::getVersion('main'), '23.00.00') >= 0 && Loader::includeModule('beeralex.core');
     }
 
     public function getPath(bool $includeDocumentRoot = true): string
