@@ -1,11 +1,11 @@
 <?php
 require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
 
-use Beeralex\Core\Helpers\WebHelper;
 use Beeralex\Oauth2\Repository\ClientRepository;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Security\Random;
+use Symfony\Component\Uid\Uuid;
 
 $MODULE_ID = "beeralex.oauth2";
 $POST_RIGHT = $APPLICATION->GetGroupRight($MODULE_ID);
@@ -38,7 +38,7 @@ if ($request->isPost() && check_bitrix_sessid()) {
     $newSecretPlain = null;
 
     if (!$client) {
-        $data['ID'] = WebHelper::getUuidV4();
+        $data['ID'] = Uuid::v4()->toRfc4122();
         if ($data['IS_CONFIDENTIAL']) {
             $newSecretPlain = Random::getString(48);
             $data['SECRET'] = \Bitrix\Main\Security\Password::hash($newSecretPlain);

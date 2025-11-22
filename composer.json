@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "beeralex/beeralex.core": "*"
+        "beeralex/beeralex.core": "*",
+        "symfony/uid": "^7.3"
     },
     "minimum-stability": "stable",
     "prefer-stable": true

@@ -1,6 +1,5 @@
 <?php
 
-use Beeralex\Core\Helpers\FilesHelper;
 use Beeralex\Core\Service\FileService;
 use Beeralex\Oauth2\Tables\AuthCodesTable;
 use Beeralex\Oauth2\Tables\ClientsTable;
