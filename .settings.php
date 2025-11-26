@@ -3,7 +3,6 @@ require_once __DIR__ . '/lib/Enum/DIServiceKey.php';
 
 use Beeralex\Oauth2\Enum\DIServiceKey;
 use Bitrix\Main\Config\Configuration;
-use Bitrix\Main\DI\ServiceLocator;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
@@ -52,12 +51,11 @@ return [
                 'constructorParams' => ['PT1H'],
             ],
             PasswordGrant::class => [
-                'className' => PasswordGrant::class,
-                'constructorParams' => function (): array {
-                    return [
-                        service(UserRepositoryInterface::class),
-                        service(RefreshTokenRepositoryInterface::class),
-                    ];
+                'constructor' => static function () {
+                    return new PasswordGrant(
+                        userRepository: service(UserRepositoryInterface::class),
+                        refreshTokenRepository: service(RefreshTokenRepositoryInterface::class),
+                    );
                 },
             ],
             DIServiceKey::GRANT_PASSWORD_ACCESS_TOKEN_TTL->value => [
@@ -65,13 +63,12 @@ return [
                 'constructorParams' => ['PT1H'],
             ],
             AuthCodeGrant::class => [
-                'className' => AuthCodeGrant::class,
-                'constructorParams' => function (): array {
-                    return [
-                        service(AuthCodeRepositoryInterface::class),
-                        service(RefreshTokenRepositoryInterface::class),
-                        service(DIServiceKey::GRANT_AUTH_CODE_TTL->value),
-                    ];
+                'constructor' => static function () {
+                    return new AuthCodeGrant(
+                        authCodeRepository: service(AuthCodeRepositoryInterface::class),
+                        refreshTokenRepository: service(RefreshTokenRepositoryInterface::class),
+                        authCodeTTL: service(DIServiceKey::GRANT_AUTH_CODE_TTL->value),
+                    );
                 },
             ],
             DIServiceKey::GRANT_AUTH_CODE_TTL->value => [
@@ -83,11 +80,10 @@ return [
                 'constructorParams' => ['PT1H'],
             ],
             RefreshTokenGrant::class => [
-                'className' => RefreshTokenGrant::class,
-                'constructorParams' => function (): array {
-                    return [
-                        service(RefreshTokenRepositoryInterface::class),
-                    ];
+                'constructor' => static function () {
+                    return new RefreshTokenGrant(
+                        refreshTokenRepository: service(RefreshTokenRepositoryInterface::class),
+                    );
                 },
             ],
             DIServiceKey::GRANT_REFRESH_ACCESS_TOKEN_TTL->value => [
@@ -95,54 +91,52 @@ return [
                 'constructorParams' => ['PT1H'],
             ],
             DIServiceKey::PRIVATE_KEY->value => [
-                'className' => CryptKey::class,
-                'constructorParams' => function (): array {
+                'constructor' => static function () {
                     $configuration = Configuration::getValue('beeralex.oauth2');
-                    return [
-                        $configuration['private_key'],
-                        $configuration['private_key_passphrase'],
-                    ];
-                },
+                    return new CryptKey(
+                        keyPath: $configuration['private_key'],
+                        passPhrase: $configuration['private_key_passphrase']
+                    );
+                }
             ],
             DIServiceKey::PUBLIC_KEY->value => [
-                'className' => CryptKey::class,
-                'constructorParams' => function (): array {
+                'constructor' => static function () {
                     $configuration = Configuration::getValue('beeralex.oauth2');
-                    return [
-                        $configuration['public_key'],
-                    ];
-                },
+                    return new CryptKey(
+                        keyPath: $configuration['public_key']
+                    );
+                }
             ],
             AuthorizationServer::class => [
                 'constructor' => function (): AuthorizationServer {
                     $configuration = Configuration::getValue('beeralex.oauth2');
 
                     $server = new AuthorizationServer(
-                        service(ClientRepositoryInterface::class),
-                        service(AccessTokenRepositoryInterface::class),
-                        service(ScopeRepositoryInterface::class),
-                        service(DIServiceKey::PRIVATE_KEY->value),
-                        $configuration['encryption_key']
+                        clientRepository: service(ClientRepositoryInterface::class),
+                        accessTokenRepository: service(AccessTokenRepositoryInterface::class),
+                        scopeRepository: service(ScopeRepositoryInterface::class),
+                        privateKey: service(DIServiceKey::PRIVATE_KEY->value),
+                        encryptionKey: $configuration['encryption_key']
                     );
 
                     $server->enableGrantType(
-                        service(ClientCredentialsGrant::class),
-                        service(DIServiceKey::CLIENT_CREDENTIALS_ACCESS_TOKEN_TTL->value)
+                        grantType: service(ClientCredentialsGrant::class),
+                        accessTokenTTL: service(DIServiceKey::CLIENT_CREDENTIALS_ACCESS_TOKEN_TTL->value)
                     );
 
                     $server->enableGrantType(
-                        service(PasswordGrant::class),
-                        service(DIServiceKey::GRANT_PASSWORD_ACCESS_TOKEN_TTL->value)
+                        grantType: service(PasswordGrant::class),
+                        accessTokenTTL: service(DIServiceKey::GRANT_PASSWORD_ACCESS_TOKEN_TTL->value)
                     );
 
                     $server->enableGrantType(
-                        service(RefreshTokenGrant::class),
-                        service(DIServiceKey::GRANT_REFRESH_ACCESS_TOKEN_TTL->value)
+                        grantType: service(RefreshTokenGrant::class),
+                        accessTokenTTL: service(DIServiceKey::GRANT_REFRESH_ACCESS_TOKEN_TTL->value)
                     );
 
                     $server->enableGrantType(
-                        service(AuthCodeGrant::class),
-                        service(DIServiceKey::GRANT_AUTH_CODE_ACCESS_TOKEN_TTL->value)
+                        grantType: service(AuthCodeGrant::class),
+                        accessTokenTTL: service(DIServiceKey::GRANT_AUTH_CODE_ACCESS_TOKEN_TTL->value)
                     );
 
                     return $server;
