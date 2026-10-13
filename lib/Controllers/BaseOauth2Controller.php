@@ -14,18 +14,21 @@ abstract class BaseOauth2Controller extends Controller
 {
     /** @var AuthorizationServer */
     protected $server;
+    /** @var HttpFactory */
+    protected $httpFactory;
 
     public function __construct(?HttpRequest $request = null)
     {
         parent::__construct($request);
         $this->server = service(AuthorizationServer::class);
+        $this->httpFactory = service(HttpFactory::class); 
     }
 
     protected function processBeforeAction(Action $action): bool
     {
         $action->setArguments([
-            'request' => HttpFactory::fromBitrixRequest($action->getController()->getRequest()),
-            'response' =>  HttpFactory::fromBitrixResponse((new HttpResponse())->setStatus(200)),
+            'request' => $this->httpFactory->fromBitrixRequest($action->getController()->getRequest()),
+            'response' =>  $this->httpFactory->fromBitrixResponse((new HttpResponse())->setStatus(200)),
         ]);
         return true;
     }
@@ -37,6 +40,6 @@ abstract class BaseOauth2Controller extends Controller
                 'Action result must be instance of "Psr\Http\Message\ResponseInterface"'
             );
         }
-        return HttpFactory::toBitrixResponse($result);
+        return $this->httpFactory->toBitrixResponse($result);
     }
 }

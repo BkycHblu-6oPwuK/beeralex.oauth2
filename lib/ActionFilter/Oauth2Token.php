@@ -19,7 +19,7 @@ class Oauth2Token extends Base
     public function onBeforeAction(Event $event)
     {
         $request = Context::getCurrent()->getRequest();
-        $psrRequest = HttpFactory::fromBitrixRequest($request);
+        $psrRequest = service(HttpFactory::class)->fromBitrixRequest($request);
         $accessTokenRepository = service(AccessTokenRepositoryInterface::class);
         $publicKey = service(DIServiceKey::PUBLIC_KEY->value);
         $resourceServer = new ResourceServer($accessTokenRepository, $publicKey);
